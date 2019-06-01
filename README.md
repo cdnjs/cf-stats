@@ -11,6 +11,7 @@ Welcome to the cf-stats repository, the store of the monthly usage stats reports
 These reports are created by cdnjs with data provided by Cloudflare.
 
 ## 2019
+* [May 2019](2019/cdnjs_May_2019.md)
 * [April 2019](2019/cdnjs_April_2019.md)
 * [March 2019](2019/cdnjs_March_2019.md)
 * [February 2019](2019/cdnjs_February_2019.md)
