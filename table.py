@@ -7,7 +7,7 @@ import re
 import beautifultable
 from typing import List, Dict, Union
 
-def generateRegex(order: List[str]) -> str:
+def generate_regex(order: List[str]) -> str:
     final = []
     patterns = {
         "requests": "(?P<requests>\d+)",
@@ -21,7 +21,7 @@ def generateRegex(order: List[str]) -> str:
     final = "^" + joiner + joiner.join(final) + joiner + "$"
     return final
 
-def parseRaw(url: str, regex: str) -> List[Dict[str, Union[int, float, str]]]:
+def parse_raw(url: str, regex: str) -> List[Dict[str, Union[int, float, str]]]:
     # Get the raw dump from the url
     raw = requests.get(url).text
     data = []
@@ -41,7 +41,7 @@ def parseRaw(url: str, regex: str) -> List[Dict[str, Union[int, float, str]]]:
             continue
     return data
 
-def formatData(data: List[Dict[str, Union[int, float, str]]]) -> str:
+def format_data(data: List[Dict[str, Union[int, float, str]]]) -> str:
     # Create the header
     header = beautifultable.BeautifulTable(max_width=1000, default_alignment=beautifultable.ALIGN_LEFT)
     header.set_style(beautifultable.STYLE_MARKDOWN)
@@ -74,12 +74,12 @@ def formatData(data: List[Dict[str, Union[int, float, str]]]) -> str:
     table = str(table)
     return header[:header.rfind("\n")] + "\n" + table
 
-def tableFromRaw(url: str, order: List[str]) -> str:
-    regex = generateRegex(order)
-    data = parseRaw(url, regex)
-    table = formatData(data)
+def table_from_raw(url: str, order: List[str]) -> str:
+    regex = generate_regex(order)
+    data = parse_raw(url, regex)
+    table = format_data(data)
     return table
 
-print(tableFromRaw("", ["requests", "resources", "bandwidth"]))
+print(table_from_raw("", ["requests", "resources", "bandwidth"]))
         
     
