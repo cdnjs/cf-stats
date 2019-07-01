@@ -14,10 +14,11 @@ def generateRegex(order: List[str]) -> str:
         "resources": "(?P<resource>\S+)",
         "bandwidth": "(?P<bandwidth>\d+(?:\.\d+)?)"
     }
+    joiner = "[\s|│]*"
     for item in order:
         if item in patterns:
             final.append(patterns[item])
-    final = "^\s*" + "\s*".join(final) + "\s*$"
+    final = "^" + joiner + joiner.join(final) + joiner + "$"
     return final
 
 def parseRaw(url: str, regex: str) -> List[Dict[str, Union[int, float, str]]]:
