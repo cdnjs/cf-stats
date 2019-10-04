@@ -82,23 +82,28 @@ def table_data(data: List[Dict[str, Union[int, float, str]]]) -> str:
     table = str(table)
     return header[:header.rfind("\n")] + "\n" + table
 
-def database_data(data: List[Dict[str, Union[int, float, str]]]):
-    # Create db (drop old data/table, create new table)
+def database_data(data: List[Dict[str, Union[int, float, str]]], month: int, year: int):
+    # Create db
     conn = sqlite3.connect("data.db")
     c = conn.cursor()
-    c.execute('''DROP TABLE IF EXISTS DATA''')
-    c.execute('''CREATE TABLE DATA (resource text, bandwidth float, requests integer, library text, version text, file text)''')
+    c.execute('''CREATE TABLE IF NOT EXISTS DATA (resource text, bandwidth float, requests integer, library text, version text, file text, month integer, year integer)''')
     conn.commit()
 
     # Export all the data
     for row in data:
-        c.execute('''INSERT INTO DATA (resource,bandwidth,requests,library,version,file) VALUES (?,?,?,?,?,?)''', [
-            row["resource"], row["bandwidth"], row["requests"], row["library"], row["version"], row["file"]
+        c.execute('''INSERT INTO DATA (resource,bandwidth,requests,library,version,file,month,year) VALUES (?,?,?,?,?,?,?,?)''', [
+            row["resource"], row["bandwidth"], row["requests"], row["library"], row["version"], row["file"], month, year
         ])
     conn.commit()
     conn.close()
 
-regex = generate_regex(["requests", "resources", "bandwidth"])
-data = parse_raw("", regex)
-database_data(data)
-print(table_data(data))
+if __name__ == "__main__":
+    RAW_DATA_URL = ""
+    RAW_DATA_ORDER = ["requests", "resources", "bandwidth"]
+    MONTH = 1
+    YEAR = 2019
+
+    regex = generate_regex(RAW_DATA_ORDER)
+    data = parse_raw(RAW_DATA_URL, regex)
+    database_data(data, MONTH, YEAR)
+    print(table_data(data))
