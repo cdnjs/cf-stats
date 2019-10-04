@@ -95,6 +95,27 @@ def database_data(data: List[Dict[str, Union[int, float, str]]], month: int, yea
             row["resource"], row["bandwidth"], row["requests"], row["library"], row["version"], row["file"], month, year
         ])
     conn.commit()
+
+    # Create libraries view
+    c.execute('''CREATE VIEW IF NOT EXISTS libraries AS
+SELECT
+	*,
+	total_requests / days AS requests_per_day,
+	total_bandwidth / days AS bandwidth_per_day
+FROM
+(
+	SELECT
+		SUM(requests) * 100 AS total_requests,
+		SUM(bandwidth) * 100 AS total_bandwidth,
+		library,
+		COUNT(DISTINCT(version || file)) AS files,
+		year,
+		month,
+		(julianday(DATE(year || "-" || printf("%02d", month) || "-01", "+1 month")) - julianday(year || "-" || printf("%02d", month) || "-01")) AS days,
+		year || "-" || printf("%02d", month) as date
+	FROM DATA GROUP BY library, date ORDER BY total_requests DESC
+);''')
+    conn.commit()
     conn.close()
 
 if __name__ == "__main__":
