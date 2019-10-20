@@ -7,10 +7,19 @@
 ---
 
 ## cdnjs Usage Stats
+
 Welcome to the cf-stats repository, the store of the monthly usage stats reports for the cdnjs.cloudflare.com domain.
 These reports are created by cdnjs with data provided by Cloudflare.
 
-## 2019
+## Latest Stats
+
+> **📈 [September 2019](2019/cdnjs_September_2019.md)**
+
+## Previous Stats
+
+### [2019](2019)
+
+* [September 2019](2019/cdnjs_September_2019.md)
 * [August 2019](2019/cdnjs_August_2019.md)
 * [July 2019](2019/cdnjs_July_2019.md)
 * [June 2019](2019/cdnjs_June_2019.md)
