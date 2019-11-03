@@ -13,12 +13,13 @@ These reports are created by cdnjs with data provided by Cloudflare.
 
 ## Latest Stats
 
-> **📈 [September 2019](2019/cdnjs_September_2019.md)**
+> **📈 [October 2019](2019/cdnjs_October_2019.md)**
 
 ## Previous Stats
 
 ### [2019](2019)
 
+* [October 2019](2019/cdnjs_October_2019.md)
 * [September 2019](2019/cdnjs_September_2019.md)
 * [August 2019](2019/cdnjs_August_2019.md)
 * [July 2019](2019/cdnjs_July_2019.md)
