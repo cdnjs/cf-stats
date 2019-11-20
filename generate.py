@@ -56,12 +56,15 @@ def parse_raw(url: str, column_regex: str) -> List[Dict[str, Union[int, float, s
     return items
 
 
-def database_data(request_data: List[Dict[str, Union[int, float, str]]], month: int, year: int):
+def database_data(request_data: List[Dict[str, Union[int, float, str]]], month: int, year: int, total_data: dict):
     # Create db
     conn = sqlite3.connect("data.db")
     c = conn.cursor()
     c.execute(
         '''CREATE TABLE IF NOT EXISTS DATA (resource text, bandwidth float, requests integer, library text, version text, file text, month integer, year integer)''')
+    conn.commit()
+    c.execute(
+        '''CREATE TABLE IF NOT EXISTS DATA_TOTALS (requests_1_percent integer, requests_3_days integer, bandwidth_1_percent float, bandwidth_3_days float, month integer, year integer)''')
     conn.commit()
 
     # Export all the data
@@ -72,6 +75,13 @@ def database_data(request_data: List[Dict[str, Union[int, float, str]]], month: 
                 row["resource"], row["bandwidth"], row["requests"], row["library"], row["version"], row["file"], month,
                 year
             ])
+    conn.commit()
+    c.execute(
+        '''INSERT INTO DATA_TOTALS (requests_1_percent,requests_3_days,bandwidth_1_percent,bandwidth_3_days,month,year) VALUES (?,?,?,?,?,?)''',
+        [
+            total_data["REQUESTS_1_PER"], total_data["REQUESTS_3_DAY"], total_data["BANDWIDTH_1_PER"],
+            total_data["BANDWIDTH_3_DAY"], month, year
+        ])
     conn.commit()
 
     # Create libraries view
@@ -92,6 +102,38 @@ FROM
 		(julianday(DATE(year || "-" || printf("%02d", month) || "-01", "+1 month")) - julianday(year || "-" || printf("%02d", month) || "-01")) AS days,
 		year || "-" || printf("%02d", month) as date
 	FROM DATA GROUP BY library, date ORDER BY total_requests DESC
+);''')
+    conn.commit()
+
+    # Create totals view
+    c.execute('''CREATE VIEW IF NOT EXISTS totals AS
+SELECT
+    *,
+    total_requests / days AS requests_per_day,
+    total_bandwidth / days AS bandwidth_per_day,
+    total_bandwidth / total_requests AS bandwidth_per_request
+FROM
+(
+    SELECT
+        year,
+        month,
+        date,
+        days,
+        ((bandwidth_1_percent * 100) + ((bandwidth_3_days / 3) * days)) / 2 as total_bandwidth,
+        ((requests_1_percent * 100) + ((requests_3_days / 3) * days)) / 2 as total_requests
+    FROM
+    (
+        SELECT
+            bandwidth_1_percent,
+            bandwidth_3_days,
+            requests_1_percent,
+            requests_3_days,
+            year,
+            month,
+            (julianday(DATE(year || "-" || printf("%02d", month) || "-01", "+1 month")) - julianday(year || "-" || printf("%02d", month) || "-01")) AS days,
+            year || "-" || printf("%02d", month) as date
+        FROM DATA_TOTALS ORDER BY date DESC
+    )
 );''')
     conn.commit()
     conn.close()
@@ -256,13 +298,14 @@ if __name__ == "__main__":
     MONTH = 1
     YEAR = 2019
 
-    regex = generate_regex(RAW_TABLE_DATA_ORDER)
-    items = parse_raw(RAW_TABLE_DATA_URL, regex)
-    database_data(items, MONTH, YEAR)
-    request_table = table_data(items)
-    create_file(request_table, MONTH, YEAR, {
+    stats = {
         "REQUESTS_1_PER": REQUESTS_1_PER,
         "REQUESTS_3_DAY": REQUESTS_3_DAY,
         "BANDWIDTH_1_PER": BANDWIDTH_1_PER,
         "BANDWIDTH_3_DAY": BANDWIDTH_3_DAY
-    })
+    }
+    regex = generate_regex(RAW_TABLE_DATA_ORDER)
+    items = parse_raw(RAW_TABLE_DATA_URL, regex)
+    database_data(items, MONTH, YEAR, stats)
+    request_table = table_data(items)
+    create_file(request_table, MONTH, YEAR, stats)
