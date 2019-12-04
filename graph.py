@@ -3,27 +3,28 @@ A script that takes the stats Cloudflare provides from our local DB and generate
 """
 
 import sqlite3
+from datetime import datetime
 
 import matplotlib.pyplot as plt
 
-if __name__ == "__main__":
+
+# DB item to year-month
+def ym(item):
+    return "{}-{:02}".format(item["year"], item["month"])
+
+
+# DB item to lib/ver/file
+def fn(item):
+    return "{}/{}/{}".format(item["library"], item["version"], item["file"])
+
+
+def top_5_resources():
     # Connect to the DB and get all the data ever
     conn = sqlite3.connect("data.db")
     conn.row_factory = sqlite3.Row
     c = conn.cursor()
     c.execute("SELECT * FROM DATA")
     rows = c.fetchall()
-
-
-    # DB item to year-month
-    def ym(item):
-        return "{}-{:02}".format(item["year"], item["month"])
-
-
-    # DB item to lib/ver/file
-    def fn(item):
-        return "{}/{}/{}".format(item["library"], item["version"], item["file"])
-
 
     # Compile the data by each month (year-month)
     by_month = {}
@@ -90,3 +91,48 @@ if __name__ == "__main__":
     ax.legend(loc="upper center", bbox_to_anchor=(0.5, -0.15), ncol=1)
     plt.show()
     fig.savefig("cdnjs_top_5_resources.png")
+
+
+def requests_and_bandwidth():
+    # Connect to the DB and get all the total data ever (from the view, not the raw table)
+    conn = sqlite3.connect("data.db")
+    conn.row_factory = sqlite3.Row
+    c = conn.cursor()
+    c.execute("SELECT * FROM totals")
+    rows = c.fetchall()
+
+    # Generate the plottable data
+    requests = [[], []]
+    bandwidth = [[], []]
+    months = sorted(rows, key=lambda x: x['date'])
+    for month in months:
+        the_date = datetime.strptime(month['date'] + "-01", "%Y-%m-%d").date()
+        requests[0].append(the_date)
+        requests[1].append(month['total_requests'])
+        bandwidth[0].append(the_date)
+        bandwidth[1].append(month['total_bandwidth'])
+
+    # Do the plot
+    plt.style.use("dark_background")
+    fig, ax1 = plt.subplots()
+
+    ax1.plot(*requests, label="Total Requests", color="#D9643A")
+    ax1.tick_params(axis="y", labelcolor="#D9643A")
+    ax1.set_yticklabels(["{:,.0f} bil.".format(x / 1000000000) for x in ax1.get_yticks().tolist()])
+    ax1.legend(loc="upper left", bbox_to_anchor=(0, -0.175), ncol=1, borderpad=0.75, handletextpad=1.5)
+
+    ax2 = ax1.twinx()
+    ax2.plot(*bandwidth, label="Total Bandwidth", color="#1EADAE")
+    ax2.tick_params(axis="y", labelcolor="#1EADAE")
+    ax2.set_yticklabels(["{:,.1f} PB".format(x / 1000000) for x in ax2.get_yticks().tolist()])
+    ax2.legend(loc="upper right", bbox_to_anchor=(1, -0.175), ncol=1, borderpad=0.75, handletextpad=1.5)
+
+    ax1.set_title("cdnjs Requests and Bandwidth")
+    ax1.tick_params(axis="x", labelsize=8, labelrotation=45)
+    plt.show()
+    fig.savefig("cdnjs_requests_and_bandwidth.png")
+
+
+if __name__ == "__main__":
+    top_5_resources()
+    requests_and_bandwidth()
