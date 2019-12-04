@@ -15,9 +15,15 @@ These reports are created by cdnjs with data provided by Cloudflare.
 
 > **📈 [October 2019](2019/cdnjs_October_2019.md)**
 
-## Top 5 Resources
+## Graphs
+
+### Top 5 Resources
 
 ![graph](cdnjs_top_5_resources.png)
+
+### Total Requests & Bandwidth Usage
+
+![graph](cdnjs_requests_and_bandwidth.png)
 
 ## Previous Stats
 
