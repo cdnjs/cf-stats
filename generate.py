@@ -97,6 +97,7 @@ FROM
 		SUM(bandwidth) * 100 AS total_bandwidth,
 		library,
 		COUNT(DISTINCT(version || file)) AS files,
+		COUNT(DISTINCT(version)) AS versions,
 		year,
 		month,
 		(julianday(DATE(year || "-" || printf("%02d", month) || "-01", "+1 month")) - julianday(year || "-" || printf("%02d", month) || "-01")) AS days,
