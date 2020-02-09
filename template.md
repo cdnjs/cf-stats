@@ -22,7 +22,7 @@ Information provided directly by Cloudflare for the `cdnjs.cloudflare.com` domai
 > This is {{REQUESTS_3_DAY_TOTAL}} when recalculated for the {{DAYS}} days of {{MONTH}}.
 
 To provide the best possible estimate for the entire month, an average of both numbers will be used to generate the
- estimate for the final number of requests for the month.\
+ estimate for the final number of requests for the month (75%: 1% month sample data, 25%: 100% 3 day data).\
 This results in cdnjs serving approximately {{REQUESTS}} requests in {{MONTH}}.
 
 **{{REQUESTS_DESCRIPTION}}**. 📈\
@@ -38,7 +38,8 @@ TODO: Insight against previous months
 > This results in {{BANDWIDTH_3_DAY_TOTAL_GB}} GB or {{BANDWIDTH_3_DAY_TOTAL_PB}} PB for the month.
 
 As with the total number of requests and due to the significant difference between the two, both numbers will be used to
- calculate an average for the final estimate of bandwidth consumed this month.\
+ calculate an average for the final estimate of bandwidth consumed this month (75%: 1% month sample data, 25%: 100% 3
+ day data).\
 This produces the estimate of {{BANDWIDTH_GB}} GB of bandwidth used for this month by cdnjs.
 
 **{{BANDWIDTH_DESCRIPTION}}**. 🤯\
