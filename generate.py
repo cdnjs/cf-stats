@@ -120,8 +120,8 @@ FROM
         month,
         date,
         days,
-        ((bandwidth_1_percent * 100) + ((bandwidth_3_days / 3) * days)) / 2 as total_bandwidth,
-        ((requests_1_percent * 100) + ((requests_3_days / 3) * days)) / 2 as total_requests
+        (bandwidth_1_percent * 100 * 0.75) + ((bandwidth_3_days / 3) * days * 0.25) as total_bandwidth,
+        (requests_1_percent * 100 * 0.75) + ((requests_3_days / 3) * days * 0.25) as total_requests
     FROM
     (
         SELECT
@@ -189,7 +189,7 @@ def create_file(table_string: str, month: int, year: int, total_data: dict):
     # Requests
     REQUESTS_1_PER_TOTAL = total_data["REQUESTS_1_PER"] * 100
     REQUESTS_3_DAY_TOTAL = (total_data["REQUESTS_3_DAY"] / 3) * variables["DAYS"]
-    REQUESTS = (REQUESTS_1_PER_TOTAL + REQUESTS_3_DAY_TOTAL) / 2
+    REQUESTS = REQUESTS_1_PER_TOTAL * .75 + REQUESTS_3_DAY_TOTAL * .25
     variables.update({
         "REQUESTS_1_PER": "{:,}".format(total_data["REQUESTS_1_PER"]),
         "REQUESTS_1_PER_TOTAL": "{:,.0f}".format(REQUESTS_1_PER_TOTAL),
@@ -221,7 +221,7 @@ def create_file(table_string: str, month: int, year: int, total_data: dict):
     BANDWIDTH_1_PER_TOTAL_PB = BANDWIDTH_1_PER_TOTAL_GB / 1000000
     BANDWIDTH_3_DAY_TOTAL_GB = (total_data["BANDWIDTH_3_DAY"] / 3) * variables["DAYS"]
     BANDWIDTH_3_DAY_TOTAL_PB = BANDWIDTH_3_DAY_TOTAL_GB / 1000000
-    BANDWIDTH_GB = (BANDWIDTH_1_PER_TOTAL_GB + BANDWIDTH_3_DAY_TOTAL_GB) / 2
+    BANDWIDTH_GB = BANDWIDTH_1_PER_TOTAL_GB * .75 + BANDWIDTH_3_DAY_TOTAL_GB * .25
     BANDWIDTH_PB = BANDWIDTH_GB / 1000000
     variables.update({
         "BANDWIDTH_1_PER": "{:,}".format(total_data["BANDWIDTH_1_PER"]),
