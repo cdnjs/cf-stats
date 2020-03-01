@@ -88,7 +88,9 @@ def top_5_resources():
     for file in plot:
         ax.plot(*plot[file], label=file, marker="o", markersize=4)
     ax.set_title("cdnjs Top 5 Resources")
-    ax.legend(loc="upper center", bbox_to_anchor=(0.5, -0.15), ncol=1)
+    ax.tick_params(axis="x", labelsize=8, labelrotation=45)
+    fig.subplots_adjust(bottom=0.5)
+    ax.legend(loc="upper center", bbox_to_anchor=(0.5, -0.3), ncol=1)
     plt.show()
     fig.savefig("cdnjs_top_5_resources.png")
 
