@@ -197,8 +197,8 @@ def create_file(table_string: str, month: int, year: int, total_data: dict):
         "REQUESTS_3_DAY_TOTAL": "{:,.0f}".format(REQUESTS_3_DAY_TOTAL),
         "REQUESTS": "{:,.0f}".format(REQUESTS),
         "REQUESTS_STAT": "",
-        "REQUESTS_HIGHLIGHT": "",  # Key Highlights
-        "REQUESTS_DESCRIPTION": ""  # Total Number of Requests
+        "REQUESTS_HIGHLIGHT": "",  # Key highlights
+        "REQUESTS_DESCRIPTION": ""  # Total number of requests
     })
 
     # Requests insights
@@ -215,6 +215,29 @@ def create_file(table_string: str, month: int, year: int, total_data: dict):
         choice(["around", "roughly", "approximately"]),
         requests_billion / variables["DAYS"],
         choice(["every", "every single", "each"]), variables["MONTH"])
+
+    # Sites
+    SITES = total_data["SITES_1_PER"] * 100
+    variables.update({
+        "SITES_1_PER": "{:,}".format(total_data["SITES_1_PER"]),
+        "SITES": "{:,.0f}".format(SITES),
+        "SITES_STAT": "",
+        "SITES_HIGHLIGHT": "",  # Key highlights
+        "SITES_DESCRIPTION": ""  # Websites using cdnjs
+    })
+
+    # Sites insights
+    variables["SITES_STAT"] = "{:,.2f} billion {} websites used cdnjs {}".format(
+        SITES / 1000000000,
+        choice(["unique", "different"]),
+        choice(["assets", "resources"])
+    )
+    state = not state
+    variables["SITES_HIGHLIGHT"] = ("In {}, ".format(variables["MONTH"]) if state else "") \
+                                      + "**{}**".format(variables["SITES_STAT"]) \
+                                      + (" this month!" if not state else "!")
+    variables["SITES_DESCRIPTION"] = variables["SITES_STAT"].capitalize() \
+                                        + " in {} {}".format(variables["MONTH"], year)
 
     # Bandwidth
     BANDWIDTH_1_PER_TOTAL_GB = total_data["BANDWIDTH_1_PER"] * 100
@@ -233,8 +256,8 @@ def create_file(table_string: str, month: int, year: int, total_data: dict):
         "BANDWIDTH_GB": "{:,.1f}".format(BANDWIDTH_GB),
         "BANDWIDTH_PB": "{:,.2f}".format(BANDWIDTH_PB),
         "BANDWIDTH_STAT": "",
-        "BANDWIDTH_HIGHLIGHT": "",  # Key Highlights
-        "BANDWIDTH_DESCRIPTION": ""  # Total Bandwidth Usage
+        "BANDWIDTH_HIGHLIGHT": "",  # Key highlights
+        "BANDWIDTH_DESCRIPTION": ""  # Total bandwidth usage
     })
 
     # Bandwidth insights
@@ -292,16 +315,18 @@ def create_file(table_string: str, month: int, year: int, total_data: dict):
 if __name__ == "__main__":
     REQUESTS_1_PER = 1500000000
     REQUESTS_3_DAY = 15000000000
+    SITES_1_PER = 10000000
     BANDWIDTH_1_PER = 30000.00  # GB
     BANDWIDTH_3_DAY = 300000.00  # GB
     RAW_TABLE_DATA_URL = ""  # 1% data
     RAW_TABLE_DATA_ORDER = ["requests", "resources", "bandwidth"]
     MONTH = 1
-    YEAR = 2019
+    YEAR = 2020
 
     stats = {
         "REQUESTS_1_PER": REQUESTS_1_PER,
         "REQUESTS_3_DAY": REQUESTS_3_DAY,
+        "SITES_1_PER": SITES_1_PER,
         "BANDWIDTH_1_PER": BANDWIDTH_1_PER,
         "BANDWIDTH_3_DAY": BANDWIDTH_3_DAY
     }
