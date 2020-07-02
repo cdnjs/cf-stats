@@ -8,6 +8,7 @@
 
 ## cdnjs 2020 Usage Stats
 
+* [June 2020](cdnjs_June_2020.md)
 * [May 2020](cdnjs_May_2020.md)
 * [April 2020](cdnjs_April_2020.md)
 * [March 2020](cdnjs_March_2020.md)
