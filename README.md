@@ -12,7 +12,7 @@ Welcome to the cf-stats repository, the store of the monthly usage stats reports
 These reports are created by cdnjs with data provided by Cloudflare.
 
 ## Latest Stats
-> **📈 [August 2020](2020/cdnjs_August_2020.md)**
+> **📈 [September 2020](2020/cdnjs_September_2020.md)**
 
 
 ## Graphs
@@ -29,6 +29,7 @@ These reports are created by cdnjs with data provided by Cloudflare.
 
 ### [2020](2020)
 
+* [September 2020](2020/cdnjs_September_2020.md)
 * [August 2020](2020/cdnjs_August_2020.md)
 * [July 2020](2020/cdnjs_July_2020.md)
 * [June 2020](2020/cdnjs_June_2020.md)
