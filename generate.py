@@ -120,8 +120,14 @@ FROM
         month,
         date,
         days,
-        (bandwidth_1_percent * 100 * 0.75) + ((bandwidth_3_days / 3) * days * 0.25) as total_bandwidth,
-        (requests_1_percent * 100 * 0.75) + ((requests_3_days / 3) * days * 0.25) as total_requests
+        (CASE
+            WHEN bandwidth_3_days IS NULL THEN bandwidth_1_percent * 100
+            ELSE (bandwidth_1_percent * 100 * 0.75) + ((bandwidth_3_days / 3) * days * 0.25)
+        END) AS total_bandwidth,
+        (CASE
+            WHEN requests_3_days IS NULL THEN requests_1_percent * 100
+            ELSE (requests_1_percent * 100 * 0.75) + ((requests_3_days / 3) * days * 0.25)
+        END) AS total_requests
     FROM
     (
         SELECT
@@ -178,6 +184,18 @@ def over_under_nearly(exact: Union[float, int], rounded: int) -> str:
     return "over" if exact > rounded else ("just under" if rounded - exact <= 0.2 else "nearly")
 
 
+def get_template(template_file: str, variables: dict) -> str:
+    # Load in template file
+    with open("template/" + template_file) as f:
+        template = f.read()
+
+    # Substitute in variables
+    for key, value in variables.items():
+        template = template.replace("{{" + key + "}}", str(value))
+
+    return template
+
+
 def create_file(table_string: str, month: int, year: int, total_data: dict):
     variables = {
         "MONTH": calendar.month_name[month],
@@ -188,13 +206,13 @@ def create_file(table_string: str, month: int, year: int, total_data: dict):
 
     # Requests
     REQUESTS_1_PER_TOTAL = total_data["REQUESTS_1_PER"] * 100
-    REQUESTS_3_DAY_TOTAL = (total_data["REQUESTS_3_DAY"] / 3) * variables["DAYS"]
-    REQUESTS = REQUESTS_1_PER_TOTAL * .75 + REQUESTS_3_DAY_TOTAL * .25
+    REQUESTS_3_DAY_TOTAL = None if total_data["REQUESTS_3_DAY"] is None else (total_data["REQUESTS_3_DAY"] / 3) * variables["DAYS"]
+    REQUESTS = REQUESTS_1_PER_TOTAL if REQUESTS_3_DAY_TOTAL is None else REQUESTS_1_PER_TOTAL * .75 + REQUESTS_3_DAY_TOTAL * .25
     variables.update({
         "REQUESTS_1_PER": "{:,}".format(total_data["REQUESTS_1_PER"]),
         "REQUESTS_1_PER_TOTAL": "{:,.0f}".format(REQUESTS_1_PER_TOTAL),
-        "REQUESTS_3_DAY": "{:,}".format(total_data["REQUESTS_3_DAY"]),
-        "REQUESTS_3_DAY_TOTAL": "{:,.0f}".format(REQUESTS_3_DAY_TOTAL),
+        "REQUESTS_3_DAY": "" if total_data["REQUESTS_3_DAY"] is None else "{:,}".format(total_data["REQUESTS_3_DAY"]),
+        "REQUESTS_3_DAY_TOTAL": "" if REQUESTS_3_DAY_TOTAL is None else "{:,.0f}".format(REQUESTS_3_DAY_TOTAL),
         "REQUESTS": "{:,.0f}".format(REQUESTS),
         "REQUESTS_STAT": "",
         "REQUESTS_HIGHLIGHT": "",  # Key highlights
@@ -242,17 +260,17 @@ def create_file(table_string: str, month: int, year: int, total_data: dict):
     # Bandwidth
     BANDWIDTH_1_PER_TOTAL_GB = total_data["BANDWIDTH_1_PER"] * 100
     BANDWIDTH_1_PER_TOTAL_PB = BANDWIDTH_1_PER_TOTAL_GB / 1000000
-    BANDWIDTH_3_DAY_TOTAL_GB = (total_data["BANDWIDTH_3_DAY"] / 3) * variables["DAYS"]
-    BANDWIDTH_3_DAY_TOTAL_PB = BANDWIDTH_3_DAY_TOTAL_GB / 1000000
-    BANDWIDTH_GB = BANDWIDTH_1_PER_TOTAL_GB * .75 + BANDWIDTH_3_DAY_TOTAL_GB * .25
+    BANDWIDTH_3_DAY_TOTAL_GB = None if total_data["BANDWIDTH_3_DAY"] is None else (total_data["BANDWIDTH_3_DAY"] / 3) * variables["DAYS"]
+    BANDWIDTH_3_DAY_TOTAL_PB = None if BANDWIDTH_3_DAY_TOTAL_GB is None else BANDWIDTH_3_DAY_TOTAL_GB / 1000000
+    BANDWIDTH_GB = BANDWIDTH_1_PER_TOTAL_GB if BANDWIDTH_3_DAY_TOTAL_GB is None else BANDWIDTH_1_PER_TOTAL_GB * .75 + BANDWIDTH_3_DAY_TOTAL_GB * .25
     BANDWIDTH_PB = BANDWIDTH_GB / 1000000
     variables.update({
         "BANDWIDTH_1_PER": "{:,}".format(total_data["BANDWIDTH_1_PER"]),
         "BANDWIDTH_1_PER_TOTAL_GB": "{:,.1f}".format(BANDWIDTH_1_PER_TOTAL_GB),
         "BANDWIDTH_1_PER_TOTAL_PB": "{:,.2f}".format(BANDWIDTH_1_PER_TOTAL_PB),
-        "BANDWIDTH_3_DAY": "{:,}".format(total_data["BANDWIDTH_3_DAY"]),
-        "BANDWIDTH_3_DAY_TOTAL_GB": "{:,.1f}".format(BANDWIDTH_3_DAY_TOTAL_GB),
-        "BANDWIDTH_3_DAY_TOTAL_PB": "{:,.2f}".format(BANDWIDTH_3_DAY_TOTAL_PB),
+        "BANDWIDTH_3_DAY": "" if total_data["BANDWIDTH_3_DAY"] is None else "{:,}".format(total_data["BANDWIDTH_3_DAY"]),
+        "BANDWIDTH_3_DAY_TOTAL_GB": "" if BANDWIDTH_3_DAY_TOTAL_GB is None else "{:,.1f}".format(BANDWIDTH_3_DAY_TOTAL_GB),
+        "BANDWIDTH_3_DAY_TOTAL_PB": "" if BANDWIDTH_3_DAY_TOTAL_PB is None else "{:,.2f}".format(BANDWIDTH_3_DAY_TOTAL_PB),
         "BANDWIDTH_GB": "{:,.1f}".format(BANDWIDTH_GB),
         "BANDWIDTH_PB": "{:,.2f}".format(BANDWIDTH_PB),
         "BANDWIDTH_STAT": "",
@@ -298,13 +316,14 @@ def create_file(table_string: str, month: int, year: int, total_data: dict):
         "" if state else " on average",
     )
 
-    # Load in template file
-    with open("template.md") as f:
-        template = f.read()
+    # Load in requests template
+    variables["REQUESTS_PRETEXT"] = get_template("requests_1_per.md" if REQUESTS_3_DAY_TOTAL is None else "requests_combined.md", variables)
 
-    # Substitute in variables
-    for key, value in variables.items():
-        template = template.replace("{{" + key + "}}", str(value))
+    # Load in bandwidth template
+    variables["BANDWIDTH_PRETEXT"] = get_template("bandwidth_1_per.md" if REQUESTS_3_DAY_TOTAL is None else "bandwidth_combined.md", variables)
+
+    # Final template
+    template = get_template("template.md", variables)
 
     # Save to new file
     os.makedirs("./{}".format(year), exist_ok=True)
@@ -314,10 +333,10 @@ def create_file(table_string: str, month: int, year: int, total_data: dict):
 
 if __name__ == "__main__":
     REQUESTS_1_PER = 1500000000
-    REQUESTS_3_DAY = 15000000000
+    REQUESTS_3_DAY = None
     SITES_1_PER = 10000000
     BANDWIDTH_1_PER = 30000.00  # GB
-    BANDWIDTH_3_DAY = 300000.00  # GB
+    BANDWIDTH_3_DAY = None  # GB
     RAW_TABLE_DATA_URL = ""  # 1% data
     RAW_TABLE_DATA_ORDER = ["requests", "resources", "bandwidth"]
     MONTH = 1
