@@ -80,13 +80,24 @@ def top_5_resources():
             else:
                 plot[file][1].append(None)
 
+    # Set the correct order (1 -> 5, newest -> oldest)
+    order = []
+    for month in list(by_month.keys())[::-1]:
+        for file in by_month[month]:
+            if file not in order:
+                order.append(file)
+
     # Do the plot
     plt.style.use("dark_background")
     fig, ax = plt.subplots()
     ax.set(ylim=(limit + 0.5, 0.5))
     ax.set_yticks(range(1, limit + 1)[::-1])
-    for file in plot:
-        ax.plot(*plot[file], label=file, marker="o", markersize=4)
+    for file in order:
+        ax.plot(*plot[file],
+                label=(file if file in order[:8] else None),
+                marker="o",
+                markersize=4,
+                color=(None if file in order[:8] else (0.2, 0.2, 0.2, 1)))
     ax.set_title("cdnjs Top 5 Resources")
     ax.tick_params(axis="x", labelsize=8, labelrotation=45)
     fig.subplots_adjust(bottom=0.5)
