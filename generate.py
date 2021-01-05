@@ -16,11 +16,11 @@ import requests
 def generate_regex(order: List[str]) -> str:
     final = []
     patterns = {
-        "requests": "(?P<requests>\\d+)",
-        "resources": "(?P<resource>\\S+)",
-        "bandwidth": "(?P<bandwidth>\\d+(?:\\.\\d+)?)"
+        "requests": "\"?(?P<requests>\\d+)\"?",
+        "resources": "\"?(?P<resource>[^\\s\"]+)\"?",
+        "bandwidth": "\"?(?P<bandwidth>\\d+(?:\\.\\d+)?)\"?"
     }
-    joiner = "[\\s|│]*"
+    joiner = "[\\s|│,]*"
     for item in order:
         if item in patterns:
             final.append(patterns[item])
