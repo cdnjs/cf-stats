@@ -21,9 +21,13 @@ Information provided directly by Cloudflare for the `cdnjs.cloudflare.com` domai
 - 2
 - 3
 
-| Total Requests & Bandwidth | Avg. Daily Requests & Bandwidth | Top 5 Resources |
-|---|---|---|
-| [![cdnjs total requests & bandwidth graph](../cdnjs_total_requests_and_bandwidth.png)](../cdnjs_total_requests_and_bandwidth.png) | [![cdnjs avg. daily requests & bandwidth graph](../cdnjs_daily_requests_and_bandwidth.png)](../cdnjs_daily_requests_and_bandwidth.png) | [![cdnjs top 5 resources graph](../cdnjs_top_5_resources.png)](../cdnjs_top_5_resources.png) |
+| Total Requests & Bandwidth | Avg. Daily Requests & Bandwidth |
+|---|---|
+| [![cdnjs total requests & bandwidth graph](../cdnjs_total_requests_and_bandwidth.png)](../cdnjs_total_requests_and_bandwidth.png) | [![cdnjs avg. daily requests & bandwidth graph](../cdnjs_daily_requests_and_bandwidth.png)](../cdnjs_daily_requests_and_bandwidth.png) |
+
+| Top 5 Resources | Top 5 Libraries |
+|---|---|
+| [![cdnjs top 5 resources graph](../cdnjs_top_5_resources.png)](../cdnjs_top_5_resources.png) | [![cdnjs top 5 libraries graph](../cdnjs_top_5_libraries.png)](../cdnjs_top_5_libraries.png) |
 
 ## Total number of requests
 
