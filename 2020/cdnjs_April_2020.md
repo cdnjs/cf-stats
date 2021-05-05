@@ -34,7 +34,7 @@ An average of 444 million requests each day!**
 
 | Requests & Bandwidth | Top 5 Resources |
 |---|---|
-| ![cdnjs requests & bandwidth](../cdnjs_requests_and_bandwidth.png) | ![cdnjs top 5 resources](../cdnjs_top_5_resources.png) |
+| ![cdnjs requests & bandwidth](../cdnjs_total_requests_and_bandwidth.png) | ![cdnjs top 5 resources](../cdnjs_top_5_resources.png) |
 
 ## Total number of requests
 

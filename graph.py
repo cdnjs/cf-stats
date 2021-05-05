@@ -106,7 +106,7 @@ def top_5_resources():
     fig.savefig("cdnjs_top_5_resources.png")
 
 
-def requests_and_bandwidth():
+def total_requests_and_bandwidth():
     # Connect to the DB and get all the total data ever (from the view, not the raw table)
     conn = sqlite3.connect("data.db")
     conn.row_factory = sqlite3.Row
@@ -140,12 +140,53 @@ def requests_and_bandwidth():
     ax2.set_yticklabels(["{:,.1f} PB".format(x / 1000000) for x in ax2.get_yticks().tolist()])
     ax2.legend(loc="upper right", bbox_to_anchor=(1, -0.175), ncol=1, borderpad=0.75, handletextpad=1.5)
 
-    ax1.set_title("cdnjs Requests and Bandwidth")
+    ax1.set_title("cdnjs Total Requests and Bandwidth")
     ax1.tick_params(axis="x", labelsize=8, labelrotation=45)
     plt.show()
-    fig.savefig("cdnjs_requests_and_bandwidth.png")
+    fig.savefig("cdnjs_total_requests_and_bandwidth.png")
+
+
+def daily_requests_and_bandwidth():
+    # Connect to the DB and get all the total data ever (from the view, not the raw table)
+    conn = sqlite3.connect("data.db")
+    conn.row_factory = sqlite3.Row
+    c = conn.cursor()
+    c.execute("SELECT * FROM totals")
+    rows = c.fetchall()
+
+    # Generate the plottable data
+    requests = [[], []]
+    bandwidth = [[], []]
+    months = sorted(rows, key=lambda x: x['date'])
+    for month in months:
+        the_date = datetime.strptime(month['date'] + "-01", "%Y-%m-%d").date()
+        requests[0].append(the_date)
+        requests[1].append(month['requests_per_day'])
+        bandwidth[0].append(the_date)
+        bandwidth[1].append(month['bandwidth_per_day'])
+
+    # Do the plot
+    plt.style.use("dark_background")
+    fig, ax1 = plt.subplots()
+
+    ax1.plot(*requests, label="Avg. Daily Requests", color="#D9643A")
+    ax1.tick_params(axis="y", labelcolor="#D9643A")
+    ax1.set_yticklabels(["{:,.0f} bil.".format(x / 1000000000) for x in ax1.get_yticks().tolist()])
+    ax1.legend(loc="upper left", bbox_to_anchor=(0, -0.175), ncol=1, borderpad=0.75, handletextpad=1.5)
+
+    ax2 = ax1.twinx()
+    ax2.plot(*bandwidth, label="Avg. Daily Bandwidth", color="#1EADAE")
+    ax2.tick_params(axis="y", labelcolor="#1EADAE")
+    ax2.set_yticklabels(["{:,.1f} PB".format(x / 1000000) for x in ax2.get_yticks().tolist()])
+    ax2.legend(loc="upper right", bbox_to_anchor=(1, -0.175), ncol=1, borderpad=0.75, handletextpad=1.5)
+
+    ax1.set_title("cdnjs Avg. Daily Requests and Bandwidth")
+    ax1.tick_params(axis="x", labelsize=8, labelrotation=45)
+    plt.show()
+    fig.savefig("cdnjs_daily_requests_and_bandwidth.png")
 
 
 if __name__ == "__main__":
     top_5_resources()
-    requests_and_bandwidth()
+    total_requests_and_bandwidth()
+    daily_requests_and_bandwidth()
