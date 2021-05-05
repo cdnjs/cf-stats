@@ -49,7 +49,7 @@ def top_5_graph(data_by_month, limit, title, filename):
 
     # Set the correct order (1 -> 5, newest -> oldest)
     order = []
-    for month in list(data_by_month.keys())[::-1]:
+    for month in sorted(list(data_by_month.keys()), reverse=True):
         for item in data_by_month[month]:
             if item not in order:
                 order.append(item)
@@ -59,12 +59,12 @@ def top_5_graph(data_by_month, limit, title, filename):
     fig, ax = plt.subplots()
     ax.set(ylim=(limit + 0.5, 0.5))
     ax.set_yticks(range(1, limit + 1)[::-1])
-    for file in order:
-        ax.plot(*plot[file],
-                label=(file if file in order[:8] else None),
+    for item in order:
+        ax.plot(*plot[item],
+                label=(item if item in order[:8] else None),
                 marker="o",
                 markersize=4,
-                color=(None if file in order[:8] else (0.2, 0.2, 0.2, 1)))
+                color=(None if item in order[:8] else (0.2, 0.2, 0.2, 1)))
     ax.set_title(title)
     ax.tick_params(axis="x", labelsize=8, labelrotation=45)
     fig.subplots_adjust(bottom=0.5)
@@ -150,15 +150,25 @@ def requests_and_bandwidth_graph(requests_data, bandwidth_data, requests_title, 
     plt.style.use("dark_background")
     fig, ax1 = plt.subplots()
 
+    use_precise_bil = max(requests_data[1]) - min(requests_data[1]) < 4000000000
+
     ax1.plot(*requests_data, label=requests_title, color="#D9643A")
     ax1.tick_params(axis="y", labelcolor="#D9643A")
-    ax1.set_yticklabels(["{:,.0f} bil.".format(x / 1000000000) for x in ax1.get_yticks().tolist()])
+    if use_precise_bil:
+        ax1.set_yticklabels(["{:,.1f} bil.".format(x / 1000000000) for x in ax1.get_yticks().tolist()])
+    else:
+        ax1.set_yticklabels(["{:,.0f} bil.".format(x / 1000000000) for x in ax1.get_yticks().tolist()])
     ax1.legend(loc="upper left", bbox_to_anchor=(0, -0.175), ncol=1, borderpad=0.75, handletextpad=1.5)
+
+    use_pb = (sum(bandwidth_data[1]) / len(bandwidth_data[1])) > 1000000
 
     ax2 = ax1.twinx()
     ax2.plot(*bandwidth_data, label=bandwidth_title, color="#1EADAE")
     ax2.tick_params(axis="y", labelcolor="#1EADAE")
-    ax2.set_yticklabels(["{:,.1f} PB".format(x / 1000000) for x in ax2.get_yticks().tolist()])
+    if use_pb:
+        ax2.set_yticklabels(["{:,.1f} PB".format(x / 1000000) for x in ax2.get_yticks().tolist()])
+    else:
+        ax2.set_yticklabels(["{:,.0f} TB".format(x / 1000) for x in ax2.get_yticks().tolist()])
     ax2.legend(loc="upper right", bbox_to_anchor=(1, -0.175), ncol=1, borderpad=0.75, handletextpad=1.5)
 
     ax1.set_title(title)
