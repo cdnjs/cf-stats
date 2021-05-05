@@ -106,6 +106,91 @@ def top_5_resources():
     fig.savefig("cdnjs_top_5_resources.png")
 
 
+def top_5_libraries():
+    # Connect to the DB and get all the data ever
+    conn = sqlite3.connect("data.db")
+    conn.row_factory = sqlite3.Row
+    c = conn.cursor()
+    c.execute("SELECT * FROM libraries")
+    rows = c.fetchall()
+
+    # Compile the data by each month (year-month)
+    by_month = {}
+    for item in rows:
+        if item["date"] not in by_month:
+            by_month[item["date"]] = []
+        by_month[item["date"]].append(item)
+
+    # Sort the data each month and get the top x
+    limit = 5
+    for month in by_month:
+        by_month[month].sort(key=lambda x: x["total_requests"], reverse=True)
+        by_month[month] = [{
+            "position": i + 1,
+            "month": month,
+            "requests": f["total_requests"],
+            "bandwidth": f["total_bandwidth"],
+            "library": f["library"],
+        } for i, f in enumerate(by_month[month][:limit])]
+        new = {}
+        for item in by_month[month]:
+            new[item["library"]] = item
+        by_month[month] = new
+
+    # Find every library in the top x across the months
+    all_libraries = set()
+    for month in by_month:
+        for library in by_month[month]:
+            all_libraries.add(library)
+
+    # Generate by file with every month (None if not in that month)
+    by_library = {}
+    for library in all_libraries:
+        by_library[library] = {}
+        for month in by_month:
+            if library in by_month[month]:
+                by_library[library][month] = by_month[month][library]
+            else:
+                by_library[library][month] = None
+
+    # Convert the by library data to plottable data
+    plot = {}
+    for library in by_library:
+        plot[library] = [[], []]
+        months = sorted(list(by_library[library].items()), key=lambda x: x[0])
+        for month, data in months:
+            plot[library][0].append(month)
+            if data:
+                plot[library][1].append(data["position"])
+            else:
+                plot[library][1].append(None)
+
+    # Set the correct order (1 -> 5, newest -> oldest)
+    order = []
+    for month in list(by_month.keys())[::-1]:
+        for library in by_month[month]:
+            if library not in order:
+                order.append(library)
+
+    # Do the plot
+    plt.style.use("dark_background")
+    fig, ax = plt.subplots()
+    ax.set(ylim=(limit + 0.5, 0.5))
+    ax.set_yticks(range(1, limit + 1)[::-1])
+    for file in order:
+        ax.plot(*plot[file],
+                label=(file if file in order[:8] else None),
+                marker="o",
+                markersize=4,
+                color=(None if file in order[:8] else (0.2, 0.2, 0.2, 1)))
+    ax.set_title("cdnjs Top 5 Libraries")
+    ax.tick_params(axis="x", labelsize=8, labelrotation=45)
+    fig.subplots_adjust(bottom=0.5)
+    ax.legend(loc="upper center", bbox_to_anchor=(0.5, -0.3), ncol=1)
+    plt.show()
+    fig.savefig("cdnjs_top_5_libraries.png")
+
+
 def total_requests_and_bandwidth():
     # Connect to the DB and get all the total data ever (from the view, not the raw table)
     conn = sqlite3.connect("data.db")
@@ -188,5 +273,6 @@ def daily_requests_and_bandwidth():
 
 if __name__ == "__main__":
     top_5_resources()
+    top_5_libraries()
     total_requests_and_bandwidth()
     daily_requests_and_bandwidth()

@@ -21,6 +21,10 @@ These reports are created by cdnjs with data provided by Cloudflare.
 
 [![cdnjs top 5 resources graph](cdnjs_top_5_resources.png)](cdnjs_top_5_resources.png)
 
+### Top 5 Libraries
+
+[![cdnjs top 5 libraries graph](cdnjs_top_5_libraries.png)](cdnjs_top_5_libraries.png)
+
 ### Total Requests & Bandwidth Usage
 
 [![cdnjs total requests & bandwidth graph](cdnjs_total_requests_and_bandwidth.png)](cdnjs_total_requests_and_bandwidth.png)
