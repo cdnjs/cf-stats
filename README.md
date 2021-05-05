@@ -19,11 +19,16 @@ These reports are created by cdnjs with data provided by Cloudflare.
 
 ### Top 5 Resources
 
-![graph](cdnjs_top_5_resources.png)
+[![cdnjs top 5 resources graph](cdnjs_top_5_resources.png)](cdnjs_top_5_resources.png)
 
 ### Total Requests & Bandwidth Usage
 
-![graph](cdnjs_requests_and_bandwidth.png)
+[![cdnjs total requests & bandwidth graph](cdnjs_total_requests_and_bandwidth.png)](cdnjs_total_requests_and_bandwidth.png)
+
+### Avg. Daily Requests & Bandwidth Usage
+
+[![cdnjs avg. daily requests & bandwidth graph](cdnjs_daily_requests_and_bandwidth.png)](cdnjs_daily_requests_and_bandwidth.png)
+
 
 ## Previous Stats
 
