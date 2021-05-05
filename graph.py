@@ -18,6 +18,61 @@ def fn(item):
     return "{}/{}/{}".format(item["library"], item["version"], item["file"])
 
 
+def top_5_graph(data_by_month, limit, title, filename):
+    # Find every item in the top x across the months
+    all_items = set()
+    for month in data_by_month:
+        for item in data_by_month[month]:
+            all_items.add(item)
+
+    # Generate by item with every month (None if not in that month)
+    by_item = {}
+    for item in all_items:
+        by_item[item] = {}
+        for month in data_by_month:
+            if item in data_by_month[month]:
+                by_item[item][month] = data_by_month[month][item]
+            else:
+                by_item[item][month] = None
+
+    # Convert the by item data to plottable data
+    plot = {}
+    for item in by_item:
+        plot[item] = [[], []]
+        months = sorted(list(by_item[item].items()), key=lambda x: x[0])
+        for month, data in months:
+            plot[item][0].append(month)
+            if data:
+                plot[item][1].append(data["position"])
+            else:
+                plot[item][1].append(None)
+
+    # Set the correct order (1 -> 5, newest -> oldest)
+    order = []
+    for month in list(data_by_month.keys())[::-1]:
+        for item in data_by_month[month]:
+            if item not in order:
+                order.append(item)
+
+    # Do the plot
+    plt.style.use("dark_background")
+    fig, ax = plt.subplots()
+    ax.set(ylim=(limit + 0.5, 0.5))
+    ax.set_yticks(range(1, limit + 1)[::-1])
+    for file in order:
+        ax.plot(*plot[file],
+                label=(file if file in order[:8] else None),
+                marker="o",
+                markersize=4,
+                color=(None if file in order[:8] else (0.2, 0.2, 0.2, 1)))
+    ax.set_title(title)
+    ax.tick_params(axis="x", labelsize=8, labelrotation=45)
+    fig.subplots_adjust(bottom=0.5)
+    ax.legend(loc="upper center", bbox_to_anchor=(0.5, -0.3), ncol=1)
+    plt.show()
+    fig.savefig(filename)
+
+
 def top_5_resources():
     # Connect to the DB and get all the data ever
     conn = sqlite3.connect("data.db")
@@ -52,58 +107,8 @@ def top_5_resources():
             new[fn(item)] = item
         by_month[month] = new
 
-    # Find every file in the top x across the months
-    all_files = set()
-    for month in by_month:
-        for file in by_month[month]:
-            all_files.add(file)
-
-    # Generate by file with every month (None if not in that month)
-    by_file = {}
-    for file in all_files:
-        by_file[file] = {}
-        for month in by_month:
-            if file in by_month[month]:
-                by_file[file][month] = by_month[month][file]
-            else:
-                by_file[file][month] = None
-
-    # Convert the by file data to plottable data
-    plot = {}
-    for file in by_file:
-        plot[file] = [[], []]
-        months = sorted(list(by_file[file].items()), key=lambda x: x[0])
-        for month, data in months:
-            plot[file][0].append(month)
-            if data:
-                plot[file][1].append(data["position"])
-            else:
-                plot[file][1].append(None)
-
-    # Set the correct order (1 -> 5, newest -> oldest)
-    order = []
-    for month in list(by_month.keys())[::-1]:
-        for file in by_month[month]:
-            if file not in order:
-                order.append(file)
-
-    # Do the plot
-    plt.style.use("dark_background")
-    fig, ax = plt.subplots()
-    ax.set(ylim=(limit + 0.5, 0.5))
-    ax.set_yticks(range(1, limit + 1)[::-1])
-    for file in order:
-        ax.plot(*plot[file],
-                label=(file if file in order[:8] else None),
-                marker="o",
-                markersize=4,
-                color=(None if file in order[:8] else (0.2, 0.2, 0.2, 1)))
-    ax.set_title("cdnjs Top 5 Resources")
-    ax.tick_params(axis="x", labelsize=8, labelrotation=45)
-    fig.subplots_adjust(bottom=0.5)
-    ax.legend(loc="upper center", bbox_to_anchor=(0.5, -0.3), ncol=1)
-    plt.show()
-    fig.savefig("cdnjs_top_5_resources.png")
+    # Plot and save
+    top_5_graph(by_month, limit, "cdnjs Top 5 Resources", "cdnjs_top_5_resources.png")
 
 
 def top_5_libraries():
@@ -137,58 +142,29 @@ def top_5_libraries():
             new[item["library"]] = item
         by_month[month] = new
 
-    # Find every library in the top x across the months
-    all_libraries = set()
-    for month in by_month:
-        for library in by_month[month]:
-            all_libraries.add(library)
+    # Plot and save
+    top_5_graph(by_month, limit, "cdnjs Top 5 Libraries", "cdnjs_top_5_libraries.png")
 
-    # Generate by file with every month (None if not in that month)
-    by_library = {}
-    for library in all_libraries:
-        by_library[library] = {}
-        for month in by_month:
-            if library in by_month[month]:
-                by_library[library][month] = by_month[month][library]
-            else:
-                by_library[library][month] = None
 
-    # Convert the by library data to plottable data
-    plot = {}
-    for library in by_library:
-        plot[library] = [[], []]
-        months = sorted(list(by_library[library].items()), key=lambda x: x[0])
-        for month, data in months:
-            plot[library][0].append(month)
-            if data:
-                plot[library][1].append(data["position"])
-            else:
-                plot[library][1].append(None)
-
-    # Set the correct order (1 -> 5, newest -> oldest)
-    order = []
-    for month in list(by_month.keys())[::-1]:
-        for library in by_month[month]:
-            if library not in order:
-                order.append(library)
-
-    # Do the plot
+def requests_and_bandwidth_graph(requests_data, bandwidth_data, requests_title, bandwidth_title, title, filename):
     plt.style.use("dark_background")
-    fig, ax = plt.subplots()
-    ax.set(ylim=(limit + 0.5, 0.5))
-    ax.set_yticks(range(1, limit + 1)[::-1])
-    for file in order:
-        ax.plot(*plot[file],
-                label=(file if file in order[:8] else None),
-                marker="o",
-                markersize=4,
-                color=(None if file in order[:8] else (0.2, 0.2, 0.2, 1)))
-    ax.set_title("cdnjs Top 5 Libraries")
-    ax.tick_params(axis="x", labelsize=8, labelrotation=45)
-    fig.subplots_adjust(bottom=0.5)
-    ax.legend(loc="upper center", bbox_to_anchor=(0.5, -0.3), ncol=1)
+    fig, ax1 = plt.subplots()
+
+    ax1.plot(*requests_data, label=requests_title, color="#D9643A")
+    ax1.tick_params(axis="y", labelcolor="#D9643A")
+    ax1.set_yticklabels(["{:,.0f} bil.".format(x / 1000000000) for x in ax1.get_yticks().tolist()])
+    ax1.legend(loc="upper left", bbox_to_anchor=(0, -0.175), ncol=1, borderpad=0.75, handletextpad=1.5)
+
+    ax2 = ax1.twinx()
+    ax2.plot(*bandwidth_data, label=bandwidth_title, color="#1EADAE")
+    ax2.tick_params(axis="y", labelcolor="#1EADAE")
+    ax2.set_yticklabels(["{:,.1f} PB".format(x / 1000000) for x in ax2.get_yticks().tolist()])
+    ax2.legend(loc="upper right", bbox_to_anchor=(1, -0.175), ncol=1, borderpad=0.75, handletextpad=1.5)
+
+    ax1.set_title(title)
+    ax1.tick_params(axis="x", labelsize=8, labelrotation=45)
     plt.show()
-    fig.savefig("cdnjs_top_5_libraries.png")
+    fig.savefig(filename)
 
 
 def total_requests_and_bandwidth():
@@ -211,24 +187,8 @@ def total_requests_and_bandwidth():
         bandwidth[1].append(month['total_bandwidth'])
 
     # Do the plot
-    plt.style.use("dark_background")
-    fig, ax1 = plt.subplots()
-
-    ax1.plot(*requests, label="Total Requests", color="#D9643A")
-    ax1.tick_params(axis="y", labelcolor="#D9643A")
-    ax1.set_yticklabels(["{:,.0f} bil.".format(x / 1000000000) for x in ax1.get_yticks().tolist()])
-    ax1.legend(loc="upper left", bbox_to_anchor=(0, -0.175), ncol=1, borderpad=0.75, handletextpad=1.5)
-
-    ax2 = ax1.twinx()
-    ax2.plot(*bandwidth, label="Total Bandwidth", color="#1EADAE")
-    ax2.tick_params(axis="y", labelcolor="#1EADAE")
-    ax2.set_yticklabels(["{:,.1f} PB".format(x / 1000000) for x in ax2.get_yticks().tolist()])
-    ax2.legend(loc="upper right", bbox_to_anchor=(1, -0.175), ncol=1, borderpad=0.75, handletextpad=1.5)
-
-    ax1.set_title("cdnjs Total Requests and Bandwidth")
-    ax1.tick_params(axis="x", labelsize=8, labelrotation=45)
-    plt.show()
-    fig.savefig("cdnjs_total_requests_and_bandwidth.png")
+    requests_and_bandwidth_graph(requests, bandwidth, "Total Requests", "Total Bandwidth",
+                                 "cdnjs Total Requests and Bandwidth", "cdnjs_total_requests_and_bandwidth.png")
 
 
 def daily_requests_and_bandwidth():
@@ -251,24 +211,8 @@ def daily_requests_and_bandwidth():
         bandwidth[1].append(month['bandwidth_per_day'])
 
     # Do the plot
-    plt.style.use("dark_background")
-    fig, ax1 = plt.subplots()
-
-    ax1.plot(*requests, label="Avg. Daily Requests", color="#D9643A")
-    ax1.tick_params(axis="y", labelcolor="#D9643A")
-    ax1.set_yticklabels(["{:,.0f} bil.".format(x / 1000000000) for x in ax1.get_yticks().tolist()])
-    ax1.legend(loc="upper left", bbox_to_anchor=(0, -0.175), ncol=1, borderpad=0.75, handletextpad=1.5)
-
-    ax2 = ax1.twinx()
-    ax2.plot(*bandwidth, label="Avg. Daily Bandwidth", color="#1EADAE")
-    ax2.tick_params(axis="y", labelcolor="#1EADAE")
-    ax2.set_yticklabels(["{:,.1f} PB".format(x / 1000000) for x in ax2.get_yticks().tolist()])
-    ax2.legend(loc="upper right", bbox_to_anchor=(1, -0.175), ncol=1, borderpad=0.75, handletextpad=1.5)
-
-    ax1.set_title("cdnjs Avg. Daily Requests and Bandwidth")
-    ax1.tick_params(axis="x", labelsize=8, labelrotation=45)
-    plt.show()
-    fig.savefig("cdnjs_daily_requests_and_bandwidth.png")
+    requests_and_bandwidth_graph(requests, bandwidth, "Avg. Daily Requests", "Avg. Daily Bandwidth",
+                                 "cdnjs Avg. Daily Requests and Bandwidth", "cdnjs_daily_requests_and_bandwidth.png")
 
 
 if __name__ == "__main__":
