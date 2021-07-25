@@ -8,6 +8,7 @@
 
 ## cdnjs 2021 Usage Stats
 
+* [June 2021](cdnjs_June_2021.md)
 * [May 2021](cdnjs_May_2021.md)
 * [April 2021](cdnjs_April_2021.md)
 * [March 2021](cdnjs_March_2021.md)
