@@ -316,6 +316,31 @@ def create_file(table_string: str, month: int, year: int, total_data: dict):
         "" if state else " on average",
     )
 
+    # Connect to DB
+    conn = sqlite3.connect("data.db")
+    c = conn.cursor()
+
+    # Get top assets
+    c.execute("SELECT library, version, file, requests, bandwidth FROM DATA WHERE month = ? AND year = ? ORDER BY requests DESC LIMIT 5", (month, year))
+    rows = c.fetchall()
+    for i, row in enumerate(rows):
+        variables["TOP_ASSETS_" + str(i + 1) + "_LIBRARY"] = row[0]
+        variables["TOP_ASSETS_" + str(i + 1) + "_VERSION"] = row[1]
+        variables["TOP_ASSETS_" + str(i + 1) + "_FILE"] = row[2]
+        variables["TOP_ASSETS_" + str(i + 1) + "_REQUESTS"] = "{:,.2f} billion".format((row[3] * 100) / 1000000000)
+        variables["TOP_ASSETS_" + str(i + 1) + "_BANDWIDTH"] = "{:,.2f} TB".format((row[4] * 100) / 1000)
+
+    # Get top libraries
+    c.execute("SELECT library, total_requests, total_bandwidth FROM libraries WHERE month = ? AND year = ? ORDER BY total_requests DESC LIMIT 5", (month, year))
+    rows = c.fetchall()
+    for i, row in enumerate(rows):
+        variables["TOP_LIBRARIES_" + str(i + 1) + "_NAME"] = row[0]
+        variables["TOP_LIBRARIES_" + str(i + 1) + "_REQUESTS"] = "{:,.2f} billion".format(row[1] / 1000000000)
+        variables["TOP_LIBRARIES_" + str(i + 1) + "_BANDWIDTH"] = "{:,.2f} TB".format(row[2] / 1000)
+
+    # Done with DB
+    conn.close()
+
     # Load in requests template
     variables["REQUESTS_PRETEXT"] = get_template("requests_1_per.md" if REQUESTS_3_DAY_TOTAL is None else "requests_combined.md", variables)
 
