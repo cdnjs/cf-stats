@@ -8,6 +8,7 @@
 
 ## cdnjs 2022 Usage Stats
 
+* [September 2022](cdnjs_September_2022.md)
 * [August 2022](cdnjs_August_2022.md)
 * [July 2022](cdnjs_July_2022.md)
 * [June 2022](cdnjs_June_2022.md)
