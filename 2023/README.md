@@ -8,6 +8,7 @@
 
 ## cdnjs 2023 Usage Stats
 
+* [May 2023](cdnjs_May_2023.md)
 * [April 2023](cdnjs_April_2023.md)
 * [March 2023](cdnjs_March_2023.md)
 * [February 2023](cdnjs_February_2023.md)
