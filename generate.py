@@ -86,62 +86,62 @@ def database_data(request_data: List[Dict[str, Union[int, float, str]]], month: 
 
     # Create libraries view
     c.execute('''CREATE VIEW IF NOT EXISTS libraries AS
-SELECT
-	*,
-	total_requests / days AS requests_per_day,
-	total_bandwidth / days AS bandwidth_per_day
-FROM
-(
-	SELECT
-		SUM(requests) * 100 AS total_requests,
-		SUM(bandwidth) * 100 AS total_bandwidth,
-		library,
-		COUNT(DISTINCT(version || file)) AS files,
-		COUNT(DISTINCT(version)) AS versions,
-		year,
-		month,
-		(julianday(DATE(year || "-" || printf("%02d", month) || "-01", "+1 month")) - julianday(year || "-" || printf("%02d", month) || "-01")) AS days,
-		year || "-" || printf("%02d", month) as date
-	FROM DATA GROUP BY library, date ORDER BY total_requests DESC
-);''')
+        SELECT
+            *,
+            total_requests / days AS requests_per_day,
+            total_bandwidth / days AS bandwidth_per_day
+        FROM
+        (
+            SELECT
+                SUM(requests) * 100 AS total_requests,
+                SUM(bandwidth) * 100 AS total_bandwidth,
+                library,
+                COUNT(DISTINCT(version || file)) AS files,
+                COUNT(DISTINCT(version)) AS versions,
+                year,
+                month,
+                (julianday(DATE(year || "-" || printf("%02d", month) || "-01", "+1 month")) - julianday(year || "-" || printf("%02d", month) || "-01")) AS days,
+                year || "-" || printf("%02d", month) as date
+            FROM DATA GROUP BY library, date ORDER BY total_requests DESC
+        );''')
     conn.commit()
 
     # Create totals view
     c.execute('''CREATE VIEW IF NOT EXISTS totals AS
-SELECT
-    *,
-    total_requests / days AS requests_per_day,
-    total_bandwidth / days AS bandwidth_per_day,
-    total_bandwidth / total_requests AS bandwidth_per_request
-FROM
-(
-    SELECT
-        year,
-        month,
-        date,
-        days,
-        (CASE
-            WHEN bandwidth_3_days IS NULL THEN bandwidth_1_percent * 100
-            ELSE (bandwidth_1_percent * 100 * 0.75) + ((bandwidth_3_days / 3) * days * 0.25)
-        END) AS total_bandwidth,
-        (CASE
-            WHEN requests_3_days IS NULL THEN requests_1_percent * 100
-            ELSE (requests_1_percent * 100 * 0.75) + ((requests_3_days / 3) * days * 0.25)
-        END) AS total_requests
-    FROM
-    (
         SELECT
-            bandwidth_1_percent,
-            bandwidth_3_days,
-            requests_1_percent,
-            requests_3_days,
-            year,
-            month,
-            (julianday(DATE(year || "-" || printf("%02d", month) || "-01", "+1 month")) - julianday(year || "-" || printf("%02d", month) || "-01")) AS days,
-            year || "-" || printf("%02d", month) as date
-        FROM DATA_TOTALS ORDER BY date DESC
-    )
-);''')
+            *,
+            total_requests / days AS requests_per_day,
+            total_bandwidth / days AS bandwidth_per_day,
+            total_bandwidth / total_requests AS bandwidth_per_request
+        FROM
+        (
+            SELECT
+                year,
+                month,
+                date,
+                days,
+                (CASE
+                    WHEN bandwidth_3_days IS NULL THEN bandwidth_1_percent * 100
+                    ELSE (bandwidth_1_percent * 100 * 0.75) + ((bandwidth_3_days / 3) * days * 0.25)
+                END) AS total_bandwidth,
+                (CASE
+                    WHEN requests_3_days IS NULL THEN requests_1_percent * 100
+                    ELSE (requests_1_percent * 100 * 0.75) + ((requests_3_days / 3) * days * 0.25)
+                END) AS total_requests
+            FROM
+            (
+                SELECT
+                    bandwidth_1_percent,
+                    bandwidth_3_days,
+                    requests_1_percent,
+                    requests_3_days,
+                    year,
+                    month,
+                    (julianday(DATE(year || "-" || printf("%02d", month) || "-01", "+1 month")) - julianday(year || "-" || printf("%02d", month) || "-01")) AS days,
+                    year || "-" || printf("%02d", month) as date
+                FROM DATA_TOTALS ORDER BY date DESC
+            )
+        );''')
     conn.commit()
     conn.close()
 
@@ -359,7 +359,7 @@ def create_file(table_string: str, month: int, year: int, total_data: dict):
 if __name__ == "__main__":
     REQUESTS_1_PER = 1500000000
     REQUESTS_3_DAY = None
-    SITES_1_PER = 10000000
+    SITES_1_PER = 0
     BANDWIDTH_1_PER = 30000.00  # GB
     BANDWIDTH_3_DAY = None  # GB
     RAW_TABLE_DATA_URL = ""  # 1% data
