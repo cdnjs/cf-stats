@@ -69,8 +69,8 @@ def top_5_graph(data_by_month, limit, title, filename):
     ax.tick_params(axis="x", labelsize=8, labelrotation=45)
     fig.subplots_adjust(bottom=0.5)
     ax.legend(loc="upper center", bbox_to_anchor=(0.5, -0.3), ncol=1)
-    plt.show()
-    fig.savefig(filename)
+    # plt.show()
+    fig.savefig(filename, dpi=200)
 
 
 def top_5_resources():
@@ -173,8 +173,8 @@ def requests_and_bandwidth_graph(requests_data, bandwidth_data, requests_title, 
 
     ax1.set_title(title)
     ax1.tick_params(axis="x", labelsize=8, labelrotation=45)
-    plt.show()
-    fig.savefig(filename)
+    # plt.show()
+    fig.savefig(filename, dpi=200)
 
 
 def total_requests_and_bandwidth():
