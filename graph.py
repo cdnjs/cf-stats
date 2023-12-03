@@ -18,6 +18,28 @@ def fn(item):
     return "{}/{}/{}".format(item["library"], item["version"], item["file"])
 
 
+# Year/month where restrictions
+def limit_ym(months):
+    # Get the current month and year
+    now = datetime.now()
+    year = now.year
+    month = now.month
+
+    # Allow for x months of data
+    where = []
+    while months:
+        if months >= month:
+            where.append("year = {}".format(year))
+            months -= month
+            year -= 1
+            month = 12
+        else:
+            where.append("year = {} AND month >= {}".format(year, month - months + 1))
+            months = 0
+    
+    return " OR ".join(["({})".format(x) for x in where])
+
+
 def top_5_graph(data_by_month, limit, title, filename):
     # Find every item in the top x across the months
     all_items = set()
@@ -78,7 +100,7 @@ def top_5_resources():
     conn = sqlite3.connect("data.db")
     conn.row_factory = sqlite3.Row
     c = conn.cursor()
-    c.execute("SELECT * FROM DATA")
+    c.execute("SELECT * FROM DATA WHERE {}".format(limit_ym(25)))
     rows = c.fetchall()
 
     # Compile the data by each month (year-month)
@@ -116,7 +138,7 @@ def top_5_libraries():
     conn = sqlite3.connect("data.db")
     conn.row_factory = sqlite3.Row
     c = conn.cursor()
-    c.execute("SELECT * FROM libraries")
+    c.execute("SELECT * FROM libraries WHERE {}".format(limit_ym(25)))
     rows = c.fetchall()
 
     # Compile the data by each month (year-month)
