@@ -38,6 +38,7 @@ These reports are created by cdnjs with data provided by Cloudflare.
 
 ### [2024](2024)
 
+* [February 2024](2024/cdnjs_February_2024.md)
 * [January 2024](2024/cdnjs_January_2024.md)
 
 ### [2023](2023)
