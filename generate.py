@@ -12,6 +12,8 @@ from typing import List, Dict, Union
 import beautifultable
 import requests
 
+import graph
+
 
 def generate_regex(order: List[str]) -> str:
     final = []
@@ -379,6 +381,11 @@ if __name__ == "__main__":
     database_data(items, MONTH, YEAR, stats)
     request_table = table_data(items)
     create_file(request_table, MONTH, YEAR, stats)
+
+    graph.top_5_resources()
+    graph.top_5_libraries()
+    graph.total_requests_and_bandwidth()
+    graph.daily_requests_and_bandwidth()
 
 """
 Create venv: python3 -m venv
