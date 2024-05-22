@@ -379,3 +379,10 @@ if __name__ == "__main__":
     database_data(items, MONTH, YEAR, stats)
     request_table = table_data(items)
     create_file(request_table, MONTH, YEAR, stats)
+
+"""
+Create venv: python3 -m venv
+Activate venv: source venv/bin/activate
+Install requirements: python3 -m pip install -r requirements.txt
+Run script: python3 generate.py
+"""
