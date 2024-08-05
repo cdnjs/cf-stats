@@ -22,7 +22,7 @@ def generate_regex(order: List[str]) -> str:
         "resources": "\"?(?P<resource>[^\\s\"]+)\"?",
         "bandwidth": "\"?(?P<bandwidth>\\d+(?:\\.\\d+)?)\"?"
     }
-    joiner = "[\\s|│,]*"
+    joiner = "[\\s|│?,]*"
     for item in order:
         if item in patterns:
             final.append(patterns[item])
