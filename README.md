@@ -13,7 +13,7 @@ These reports are created by cdnjs with data provided by Cloudflare.
 
 ## Latest Stats
 
-> **📈 [August 2024](2024/cdnjs_August_2024.md)**
+> **📈 [September 2024](2024/cdnjs_September_2024.md)**
 
 ## Graphs
 
@@ -38,6 +38,7 @@ These reports are created by cdnjs with data provided by Cloudflare.
 
 ### [2024](2024)
 
+* [September 2024](2024/cdnjs_September_2024.md)
 * [August 2024](2024/cdnjs_August_2024.md)
 * [July 2024](2024/cdnjs_July_2024.md)
 * [June 2024](2024/cdnjs_June_2024.md)

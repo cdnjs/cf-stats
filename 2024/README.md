@@ -8,6 +8,7 @@
 
 ## cdnjs 2024 Usage Stats
 
+* [September 2024](cdnjs_September_2024.md)
 * [August 2024](cdnjs_August_2024.md)
 * [July 2024](cdnjs_July_2024.md)
 * [June 2024](cdnjs_June_2024.md)
