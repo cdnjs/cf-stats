@@ -8,5 +8,6 @@
 
 ## cdnjs 2025 Usage Stats
 
+* [March 2025](cdnjs_March_2025.md)
 * [February 2025](cdnjs_February_2025.md)
 * [January 2025](cdnjs_January_2025.md)
