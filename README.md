@@ -33,7 +33,6 @@ These reports are created by cdnjs with data provided by Cloudflare.
 
 [![cdnjs avg. daily requests & bandwidth graph](cdnjs_daily_requests_and_bandwidth.png)](cdnjs_daily_requests_and_bandwidth.png)
 
-
 ## Previous Stats
 
 ### [2025](2025)
