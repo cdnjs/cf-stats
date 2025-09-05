@@ -2,6 +2,7 @@
 A script that generates the base MD stats report file, parses the stats Cloudflare provides
  and exports them to the DB as well as generating an MD table of them for the report.
 """
+
 import calendar
 import os
 import re
@@ -13,6 +14,8 @@ import beautifultable
 import requests
 
 import graph
+import readme
+import utils
 
 
 def generate_regex(order: List[str]) -> str:
@@ -186,18 +189,6 @@ def over_under_nearly(exact: Union[float, int], rounded: int) -> str:
     return "over" if exact > rounded else ("just under" if rounded - exact <= 0.2 else "nearly")
 
 
-def get_template(template_file: str, variables: dict) -> str:
-    # Load in template file
-    with open("template/" + template_file) as f:
-        template = f.read()
-
-    # Substitute in variables
-    for key, value in variables.items():
-        template = template.replace("{{" + key + "}}", str(value))
-
-    return template
-
-
 def create_file(table_string: str, month: int, year: int, total_data: dict):
     variables = {
         "MONTH": calendar.month_name[month],
@@ -344,13 +335,13 @@ def create_file(table_string: str, month: int, year: int, total_data: dict):
     conn.close()
 
     # Load in requests template
-    variables["REQUESTS_PRETEXT"] = get_template("requests_1_per.md" if REQUESTS_3_DAY_TOTAL is None else "requests_combined.md", variables)
+    variables["REQUESTS_PRETEXT"] = utils.get_template("requests_1_per.md" if REQUESTS_3_DAY_TOTAL is None else "requests_combined.md", variables)
 
     # Load in bandwidth template
-    variables["BANDWIDTH_PRETEXT"] = get_template("bandwidth_1_per.md" if REQUESTS_3_DAY_TOTAL is None else "bandwidth_combined.md", variables)
+    variables["BANDWIDTH_PRETEXT"] = utils.get_template("bandwidth_1_per.md" if REQUESTS_3_DAY_TOTAL is None else "bandwidth_combined.md", variables)
 
     # Final template
-    template = get_template("template.md", variables)
+    template = utils.get_template("template.md", variables)
 
     # Save to new file
     os.makedirs("./{}".format(year), exist_ok=True)
@@ -386,6 +377,8 @@ if __name__ == "__main__":
     graph.top_5_libraries()
     graph.total_requests_and_bandwidth()
     graph.daily_requests_and_bandwidth()
+
+    readme.root_readme()
 
 """
 Create venv: python3 -m venv
