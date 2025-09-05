@@ -44,6 +44,17 @@ def readme():
             }
         ))
 
+    # Generate the year READMEs
+    for year in years:
+        with open(f"./{year}/README.md", "w+") as f:
+            f.write(utils.get_template(
+                "year_readme.md",
+                {
+                    "YEAR": year,
+                    "STATS": stats_by_year[year].replace("{}/".format(year), "")
+                }
+            ))
+
 
 if __name__ == "__main__":
     readme()
