@@ -29,7 +29,7 @@ def generate_regex(order: List[str]) -> str:
     for item in order:
         if item in patterns:
             final.append(patterns[item])
-    final = "^" + joiner + joiner.join(final) + joiner + "$"
+    final = "^(\\s*\\d+\\.)?" + joiner + joiner.join(final) + joiner + "$"
     return final
 
 
@@ -367,18 +367,21 @@ if __name__ == "__main__":
         "BANDWIDTH_1_PER": BANDWIDTH_1_PER,
         "BANDWIDTH_3_DAY": BANDWIDTH_3_DAY
     }
+
     regex = generate_regex(RAW_TABLE_DATA_ORDER)
     items = parse_raw(RAW_TABLE_DATA_URL, regex)
+    if len(items) == 0:
+        raise Exception("No data parsed from the raw data URL provided!")
+    
     database_data(items, MONTH, YEAR, stats)
-    request_table = table_data(items)
-    create_file(request_table, MONTH, YEAR, stats)
+    create_file(table_data(items), MONTH, YEAR, stats)
 
     graph.top_5_resources()
     graph.top_5_libraries()
     graph.total_requests_and_bandwidth()
     graph.daily_requests_and_bandwidth()
 
-    readme.root_readme()
+    readme.readme()
 
 """
 Create venv: python3 -m venv
