@@ -1,9 +1,11 @@
 """
 A script that takes the stats Cloudflare provides from our local DB and generates the repo READMEs.
+Also handles committing the all the monthly stats changes to Git.
 """
 
 import calendar
 import sqlite3
+import subprocess
 
 import utils
 
@@ -54,6 +56,20 @@ def readme():
                     "STATS": stats_by_year[year].replace("{}/".format(year), "")
                 }
             ))
+
+
+def commit(month, year):
+    # Stage + commit all the Markdown files
+    subprocess.run(["git", "add", "README.md", f"{year}/README.md", f"{year}/cdnjs_{calendar.month_name[month]}_{year}.md"])
+    subprocess.run(["git", "commit", "-m", f"Stats: {calendar.month_name[month]} {year}"])
+
+    # Stage + commit the DB file
+    subprocess.run(["git", "add", "data.db"])
+    subprocess.run(["git", "commit", "-m", f"Data: {calendar.month_name[month]} {year}"])
+
+    # Stage + commit the graphs
+    subprocess.run(["git", "add", "*.png"])
+    subprocess.run(["git", "commit", "-m", f"Graphs: {calendar.month_name[month]} {year}"])
 
 
 if __name__ == "__main__":
