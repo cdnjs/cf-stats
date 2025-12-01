@@ -14,7 +14,7 @@ import beautifultable
 import requests
 
 import graph
-import readme
+import files
 import utils
 
 
@@ -381,7 +381,8 @@ if __name__ == "__main__":
     graph.total_requests_and_bandwidth()
     graph.daily_requests_and_bandwidth()
 
-    readme.readme()
+    files.readme()
+    files.commit(MONTH, YEAR)
 
 """
 Create venv: python3 -m venv
