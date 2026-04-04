@@ -59,17 +59,30 @@ def readme():
 
 
 def commit(month, year):
+    month_name = calendar.month_name[month]
+    month_year = f"{month_name} {year}"
+
+    # Switch to a new branch for the month
+    subprocess.run(["git", "switch", "-C", month_name.lower()])
+
     # Stage + commit all the Markdown files
-    subprocess.run(["git", "add", "README.md", f"{year}/README.md", f"{year}/cdnjs_{calendar.month_name[month]}_{year}.md"])
-    subprocess.run(["git", "commit", "-m", f"Stats: {calendar.month_name[month]} {year}"])
+    subprocess.run(["git", "add", "README.md", f"{year}/README.md", f"{year}/cdnjs_{month_name}_{year}.md"])
+    subprocess.run(["git", "commit", "-m", f"Stats: {month_year}"])
 
     # Stage + commit the DB file
     subprocess.run(["git", "add", "data.db"])
-    subprocess.run(["git", "commit", "-m", f"Data: {calendar.month_name[month]} {year}"])
+    subprocess.run(["git", "commit", "-m", f"Data: {month_year}"])
 
     # Stage + commit the graphs
     subprocess.run(["git", "add", "*.png"])
-    subprocess.run(["git", "commit", "-m", f"Graphs: {calendar.month_name[month]} {year}"])
+    subprocess.run(["git", "commit", "-m", f"Graphs: {month_year}"])
+
+    # Create pull request on GitHub
+    subprocess.run(["git", "push", "-u", "origin", month_name.lower()])
+    subprocess.run(["gh", "pr", "create", "--title", month_year, "--body", f"🗄 {month_year} database data.\n📈 {month_year} top resources & totals graphs.\n🎉 {month_year} stats from Cloudflare."])
+
+    # Switch back to master
+    subprocess.run(["git", "switch", "master"])
 
 
 if __name__ == "__main__":
