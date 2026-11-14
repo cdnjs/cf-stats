@@ -6,6 +6,7 @@ import sqlite3
 from datetime import datetime
 
 import matplotlib.pyplot as plt
+from matplotlib.ticker import FuncFormatter
 
 
 # DB item to year-month
@@ -177,9 +178,9 @@ def requests_and_bandwidth_graph(requests_data, bandwidth_data, requests_title, 
     ax1.plot(*requests_data, label=requests_title, color="#D9643A")
     ax1.tick_params(axis="y", labelcolor="#D9643A")
     if use_precise_bil:
-        ax1.set_yticklabels(["{:,.1f} bil.".format(x / 1000000000) for x in ax1.get_yticks().tolist()])
+        ax1.yaxis.set_major_formatter(FuncFormatter(lambda x, _: "{:,.1f} bil.".format(x / 1000000000)))
     else:
-        ax1.set_yticklabels(["{:,.0f} bil.".format(x / 1000000000) for x in ax1.get_yticks().tolist()])
+        ax1.yaxis.set_major_formatter(FuncFormatter(lambda x, _: "{:,.0f} bil.".format(x / 1000000000)))
     ax1.legend(loc="upper left", bbox_to_anchor=(0, -0.175), ncol=1, borderpad=0.75, handletextpad=1.5)
 
     use_pb = (sum(bandwidth_data[1]) / len(bandwidth_data[1])) > 1000000
@@ -188,9 +189,9 @@ def requests_and_bandwidth_graph(requests_data, bandwidth_data, requests_title, 
     ax2.plot(*bandwidth_data, label=bandwidth_title, color="#1EADAE")
     ax2.tick_params(axis="y", labelcolor="#1EADAE")
     if use_pb:
-        ax2.set_yticklabels(["{:,.1f} PB".format(x / 1000000) for x in ax2.get_yticks().tolist()])
+        ax2.yaxis.set_major_formatter(FuncFormatter(lambda x, _: "{:,.1f} PB".format(x / 1000000)))
     else:
-        ax2.set_yticklabels(["{:,.0f} TB".format(x / 1000) for x in ax2.get_yticks().tolist()])
+        ax2.yaxis.set_major_formatter(FuncFormatter(lambda x, _: "{:,.0f} TB".format(x / 1000)))
     ax2.legend(loc="upper right", bbox_to_anchor=(1, -0.175), ncol=1, borderpad=0.75, handletextpad=1.5)
 
     ax1.set_title(title)
