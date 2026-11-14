@@ -153,13 +153,13 @@ def database_data(request_data: List[Dict[str, Union[int, float, str]]], month: 
 
 def table_data(request_data: List[Dict[str, Union[int, float, str]]]) -> str:
     # Create the header
-    header = beautifultable.BeautifulTable(max_width=1000, default_alignment=beautifultable.ALIGN_LEFT)
+    header = beautifultable.BeautifulTable(maxwidth=1000, default_alignment=beautifultable.ALIGN_LEFT)
     header.set_style(beautifultable.STYLE_MARKDOWN)
-    header.column_headers = ["#", "Requests", "Bandwidth", "cdnjs Resource URL"]
-    header.append_row(["", "", "", ""])
+    header.columns.header = ["#", "Requests", "Bandwidth", "cdnjs Resource URL"]
+    header.rows.append(["", "", "", ""])
 
     # Create the base table
-    base_table = beautifultable.BeautifulTable(max_width=1000, default_alignment=beautifultable.ALIGN_LEFT)
+    base_table = beautifultable.BeautifulTable(maxwidth=1000, default_alignment=beautifultable.ALIGN_LEFT)
     base_table.set_style(beautifultable.STYLE_MARKDOWN)
     base_table.detect_numerics = False  # This breaks the formatting
 
@@ -169,7 +169,7 @@ def table_data(request_data: List[Dict[str, Union[int, float, str]]]) -> str:
     # Generate the table
     for i, row in enumerate(request_data):
         try:
-            base_table.append_row([
+            base_table.rows.append([
                 "{:,}".format(i + 1),
                 "{:,}".format(row["requests"]),
                 "{:,.2f}".format(row["bandwidth"]),
@@ -179,7 +179,7 @@ def table_data(request_data: List[Dict[str, Union[int, float, str]]]) -> str:
             continue
 
     # Export header + table
-    base_table.column_alignments[2] = beautifultable.ALIGN_RIGHT
+    base_table.columns.alignment[2] = beautifultable.ALIGN_RIGHT
     header = str(header)
     base_table = str(base_table)
     return header[:header.rfind("\n")] + "\n" + base_table
